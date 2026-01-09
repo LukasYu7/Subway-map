@@ -35,6 +35,7 @@
   const map = new naver.maps.Map('map', {
     center: new naver.maps.LatLng(37.5665, 126.9780),
     zoom: 14,
+    zoomDelta: 0.5,
     mapTypes: new naver.maps.MapTypeRegistry({
       normal: naver.maps.NaverStyleMapTypeOptions.getVectorMap({
         style: 'eeab16cf-99a8-4f34-8b75-8503a18521e0',
