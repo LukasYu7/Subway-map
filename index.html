@@ -1,75 +1,68 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>Naver Map POI Toggle</title>
+  <meta charset="utf-8" />
+  <title>Naver Map – Clean Style</title>
+
   <style>
-    body { margin: 0; }
+    html, body { margin: 0; padding: 0; }
     #map { width: 100vw; height: 100vh; }
+
     .controls {
       position: absolute;
       top: 10px;
       left: 10px;
       z-index: 1000;
-      background: white;
+      background: #fff;
       padding: 8px;
       border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,.25);
-      font-family: sans-serif;
-    }
-    button {
-      padding: 6px 10px;
-      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,.3);
     }
   </style>
 
-  <!-- 🔑 여기에 네이버 지도 Client ID -->
-  <script
-    src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=3kxddohdsq">
-  </script>
+  <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=YOUR_CLIENT_ID"></script>
 </head>
 <body>
 
 <div class="controls">
-  <button id="toggleLabel">POI 끄기</button>
+  <button id="togglePoi">POI 끄기</button>
 </div>
 
 <div id="map"></div>
 
 <script>
-  // 1️⃣ 지도 생성 (배경 지도만)
+  // ✅ 1. 스타일 적용된 배경 지도
   const map = new naver.maps.Map('map', {
     center: new naver.maps.LatLng(37.5665, 126.9780),
-    zoom: 15,
+    zoom: 14,
     mapTypes: new naver.maps.MapTypeRegistry({
-      normal: naver.maps.NaverStyleMapTypeOptions.getVectorMap()
+      normal: naver.maps.NaverStyleMapTypeOptions.getVectorMap({
+        style: 'eeab16cf-99a8-4f34-8b75-8503a18521e0',
+        version: '20260109130246'
+      })
     })
   });
 
-  // 2️⃣ POI / 라벨 레이어
-  const labelMapType =
-    naver.maps.NaverStyleMapTypeOptions.getNormalLabelLayer();
-
+  // ✅ 2. POI / 라벨 레이어 (토글용)
   const labelLayer = new naver.maps.Layer(
     'label',
-    new naver.maps.MapTypeRegistry({ label: labelMapType })
+    new naver.maps.MapTypeRegistry({
+      label: naver.maps.NaverStyleMapTypeOptions.getNormalLabelLayer()
+    })
   );
 
-  // 처음엔 켜둠
   labelLayer.setMap(map);
 
-  let visible = true;
-
-  // 3️⃣ 토글 버튼
-  document.getElementById('toggleLabel').onclick = () => {
-    if (visible) {
+  let poiVisible = true;
+  document.getElementById('togglePoi').onclick = () => {
+    if (poiVisible) {
       labelLayer.setMap(null);
-      toggleLabel.innerText = 'POI 켜기';
+      togglePoi.innerText = 'POI 켜기';
     } else {
       labelLayer.setMap(map);
-      toggleLabel.innerText = 'POI 끄기';
+      togglePoi.innerText = 'POI 끄기';
     }
-    visible = !visible;
+    poiVisible = !poiVisible;
   };
 </script>
 
