@@ -2,40 +2,66 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <title>Naver Map – Clean Style</title>
+  <title>Naver Map – Clean (No Trail)</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    html, body { margin: 0; padding: 0; }
-    #map { width: 100vw; height: 100vh; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
 
     .controls {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 12px;
+      left: 12px;
       z-index: 1000;
-      background: #fff;
-      padding: 8px;
+      background: rgba(255,255,255,0.95);
+      padding: 8px 10px;
       border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+
+    .controls button {
+      font-size: 13px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    /* 캡처 모드 */
+    body.capture .controls {
+      display: none;
     }
   </style>
 
-  <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=3kxddohdsq"></script>
+  <!-- ✅ 네이버 지도 API -->
+  <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=3kxddohdsq"></script>
 </head>
 <body>
 
 <div class="controls">
   <button id="togglePoi">POI 끄기</button>
+  <button id="captureMode">캡처 모드</button>
 </div>
 
 <div id="map"></div>
 
 <script>
-  // ✅ 1. 스타일 적용된 배경 지도
+  /******************************************************************
+   * 1️⃣ 지도 생성 (Style Editor에서 만든 Clean Style 적용)
+   ******************************************************************/
   const map = new naver.maps.Map('map', {
     center: new naver.maps.LatLng(37.5665, 126.9780),
     zoom: 14,
-    zoomDelta: 0.5,
     mapTypes: new naver.maps.MapTypeRegistry({
       normal: naver.maps.NaverStyleMapTypeOptions.getVectorMap({
         style: 'eeab16cf-99a8-4f34-8b75-8503a18521e0',
@@ -44,7 +70,11 @@
     })
   });
 
-  // ✅ 2. POI / 라벨 레이어 (토글용)
+  /******************************************************************
+   * 2️⃣ POI / 일반 라벨 레이어 (토글 가능)
+   *  - 상점명, 건물명 등
+   *  - 등산로/등산로 이름 ❌ (Style Editor에서 제거됨)
+   ******************************************************************/
   const labelLayer = new naver.maps.Layer(
     'label',
     new naver.maps.MapTypeRegistry({
@@ -55,6 +85,7 @@
   labelLayer.setMap(map);
 
   let poiVisible = true;
+
   document.getElementById('togglePoi').onclick = () => {
     if (poiVisible) {
       labelLayer.setMap(null);
@@ -65,6 +96,35 @@
     }
     poiVisible = !poiVisible;
   };
+
+  /******************************************************************
+   * 3️⃣ 캡처 모드
+   *  - POI OFF
+   *  - UI 숨김
+   ******************************************************************/
+  document.getElementById('captureMode').onclick = () => {
+    labelLayer.setMap(null);
+    poiVisible = false;
+    togglePoi.innerText = 'POI 켜기';
+    document.body.classList.toggle('capture');
+  };
+
+  /******************************************************************
+   * 4️⃣ URL 파라미터 지원
+   *   ?poi=0      → POI OFF
+   *   ?zoom=16    → 줌 레벨 지정
+   ******************************************************************/
+  const params = new URLSearchParams(location.search);
+
+  if (params.get('poi') === '0') {
+    labelLayer.setMap(null);
+    poiVisible = false;
+    togglePoi.innerText = 'POI 켜기';
+  }
+
+  if (params.get('zoom')) {
+    map.setZoom(Number(params.get('zoom')), true);
+  }
 </script>
 
 </body>
